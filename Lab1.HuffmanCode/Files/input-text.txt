@@ -1,0 +1,6 @@
+I have a string in format of bits like next 101010100101011111000111,
+how can I write it in File of size of lenth of bits straing into bits, maybe using .bat extention for file.
+I work in c#
+This C# program will convert the binary string into bytes and save it to a file named "output.bat."
+The contents of the .bat file will be the binary data. You can replace the binaryString variable with
+your actual binary string

@@ -3,74 +3,71 @@ using System.Text;
 
 namespace Lab1.HuffmanCode.Arithmetic;
 
-using Freq = Dictionary<char, long>;
+using Frequency = Dictionary<char, long>;
 
 public class ArithmeticDataDecoder
 {
-    public static string ArithmeticDecoding(BigInteger num, long radix, int pwr, Freq freq)
+    public static string ArithmeticDecoding(BigInteger numeral, long radix, int exponent, Frequency frequency)
     {
-        BigInteger powr = radix;
-        BigInteger enc = num * BigInteger.Pow(powr, pwr);
-        long @base = freq.Values.Sum();
+        BigInteger power = radix;
+        BigInteger normilizedNumber = numeral * BigInteger.Pow(power, exponent);
+        long baseTextLength = frequency.Values.Sum();
 
-        // Create the cumulative frequency table
-        Freq cf = CumulativeFreq(freq);
+        Frequency cumulativeFrequency = CumulativeFrequency(frequency);
 
-        // Create the dictionary
-        Dictionary<long, char> dict = new Dictionary<long, char>();
-        foreach (char key in cf.Keys)
+        Dictionary<long, char> dictinaryOfCharacterCount = new Dictionary<long, char>();
+        foreach (char key in cumulativeFrequency.Keys)
         {
-            long value = cf[key];
-            dict[value] = key;
+            long value = cumulativeFrequency[key];
+            dictinaryOfCharacterCount[value] = key;
         }
 
-        // Fill the gaps in the dictionary
         long lchar = -1;
-        for (long i = 0; i < @base; i++)
+        for (long i = 0; i < baseTextLength; i++)
         {
-            if (dict.ContainsKey(i))
+            if (dictinaryOfCharacterCount.ContainsKey(i))
             {
-                lchar = dict[i];
+                lchar = dictinaryOfCharacterCount[i];
             }
             else if (lchar != -1)
             {
-                dict[i] = (char)lchar;
+                dictinaryOfCharacterCount[i] = (char)lchar;
             }
         }
 
         // Decode the input number
-        StringBuilder decoded = new StringBuilder((int)@base);
-        BigInteger bigBase = @base;
-        for (long i = @base - 1; i >= 0; --i)
+        StringBuilder decoded = new StringBuilder((int)baseTextLength);
+        BigInteger bigBase = baseTextLength;
+        for (long i = baseTextLength - 1; i >= 0; --i)
         {
             BigInteger pow = BigInteger.Pow(bigBase, (int)i);
-            BigInteger div = enc / pow;
-            char c = dict[(long)div];
-            BigInteger fv = freq[c];
-            BigInteger cv = cf[c];
-            BigInteger diff = enc - pow * cv;
-            enc = diff / fv;
-            decoded.Append(c);
+            BigInteger div = normilizedNumber / pow;
+            char character = dictinaryOfCharacterCount[(long)div];
+            BigInteger frequencyOfCharacter = frequency[character];
+            BigInteger cumulativeFrequencyOfCharacter = cumulativeFrequency[character];
+            BigInteger difference = normilizedNumber - pow * cumulativeFrequencyOfCharacter;
+            normilizedNumber = difference / frequencyOfCharacter;
+            decoded.Append(character);
         }
 
         // Return the decoded output
         return decoded.ToString();
     }
 
-    private static Freq CumulativeFreq(Freq freq)
+    private static Frequency CumulativeFrequency(Frequency frequency)
     {
         long total = 0;
-        Freq cf = new Freq();
+        Frequency cumulativeFrequency = new Frequency();
         for (int i = 0; i < 256; i++)
         {
-            char c = (char)i;
-            if (freq.ContainsKey(c))
+            char character = (char)i;
+            if (frequency.ContainsKey(character))
             {
-                long v = freq[c];
-                cf[c] = total;
-                total += v;
+                long appearingOfSymbol = frequency[character];
+                cumulativeFrequency[character] = total;
+                total += appearingOfSymbol;
             }
         }
-        return cf;
+        return cumulativeFrequency;
     }
 }

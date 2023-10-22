@@ -1,81 +1,70 @@
 ﻿using System.Numerics;
-using System.Text;
 
 namespace Lab1.HuffmanCode.Arithmetic;
 
-using Freq = Dictionary<char, long>;
+using Frequency = Dictionary<char, long>;
 using Triple = Tuple<BigInteger, int, Dictionary<char, long>>;
 
 public class ArithmeticDataEncoder
 {
-    public static Triple ArithmeticCoding(string str, long radix)
+    public static Triple ArithmeticEncoding(string inputText, long radix)
     {
-        // The frequency of characters
-        Freq freq = new Freq();
-        foreach (char c in str)
+        Frequency frequency = new Frequency();
+        foreach (char character in inputText)
         {
-            if (freq.ContainsKey(c))
+            if (frequency.ContainsKey(character))
             {
-                freq[c] += 1;
+                frequency[character] += 1;
             }
             else
             {
-                freq[c] = 1;
+                frequency[character] = 1;
             }
         }
 
-        // The cumulative frequency
-        Freq cf = CumulativeFreq(freq);
+        Frequency cumulativeFrequency = CumulativeFrequency(frequency);
 
-        // Base
-        BigInteger @base = str.Length;
-
-        // Lower bound
+        BigInteger baseTextLength = inputText.Length;
         BigInteger lower = 0;
+        BigInteger productOfFrequencies = 1;
 
-        // Product of all frequencies
-        BigInteger pf = 1;
-
-        // Each term is multiplied by the product of the
-        // frequencies of all previously occuring symbols
-        foreach (char c in str)
+        foreach (char character in inputText)
         {
-            BigInteger x = cf[c];
-            lower = lower * @base + x * pf;
-            pf = pf * freq[c];
+            BigInteger countOfAppearingSpecificCharacter = cumulativeFrequency[character];
+            lower = lower * baseTextLength + countOfAppearingSpecificCharacter * productOfFrequencies;
+            productOfFrequencies = productOfFrequencies * frequency[character];
         }
 
-        // Upper bound
-        BigInteger upper = lower + pf;
+        BigInteger upper = lower + productOfFrequencies;
 
-        int powr = 0;
+        int power = 0;
         BigInteger bigRadix = radix;
 
         while (true)
         {
-            pf = pf / bigRadix;
-            if (pf == 0) break;
-            powr++;
+            productOfFrequencies = productOfFrequencies / bigRadix;
+            if (productOfFrequencies == 0) break;
+            power++;
         }
 
-        BigInteger diff = (upper - 1) / (BigInteger.Pow(bigRadix, powr));
-        return new Triple(diff, powr, freq);
+        BigInteger difference = (upper - 1) / (BigInteger.Pow(bigRadix, power));
+        return new Triple(difference, power, frequency);
     }
 
-    private static Freq CumulativeFreq(Freq freq)
+    private static Frequency CumulativeFrequency(Frequency frequency)
     {
         long total = 0;
-        Freq cf = new Freq();
+        Frequency cumulativeFrequency = new Frequency();
         for (int i = 0; i < 256; i++)
         {
-            char c = (char)i;
-            if (freq.ContainsKey(c))
+            char character = (char)i;
+            if (frequency.ContainsKey(character))
             {
-                long v = freq[c];
-                cf[c] = total;
-                total += v;
+                long appearingOfSymbol = frequency[character];
+                cumulativeFrequency[character] = total;
+                total += appearingOfSymbol;
             }
         }
-        return cf;
+        return cumulativeFrequency;
     }
 }

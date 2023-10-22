@@ -7,16 +7,13 @@ public class HuffmanEncoder
 {
     public HuffmanNode BuildHuffmanTree(Dictionary<char, int> charFrequencies)
     {
-        // Create a priority queue for Huffman nodes
         var priorityQueue = new PriorityQueueCustom<HuffmanNode>();
 
-        // Initialize the priority queue with leaf nodes
         foreach (var entry in charFrequencies)
         {
             priorityQueue.Enqueue(new HuffmanNode { Character = entry.Key, Frequency = entry.Value });
         }
 
-        // Build the Huffman tree
         while (priorityQueue.Count > 1)
         {
             HuffmanNode left = priorityQueue.Dequeue();
@@ -31,7 +28,6 @@ public class HuffmanEncoder
             priorityQueue.Enqueue(parent);
         }
 
-        // The remaining node in the priority queue is the root of the Huffman tree
         return priorityQueue.Dequeue();
     }
 
